@@ -1,0 +1,4 @@
+agents:
+- name: "oper-flume01"
+  enabled: true
+  urls: ["http://flume01:34545/metrics"]

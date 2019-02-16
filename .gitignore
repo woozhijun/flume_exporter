@@ -1,0 +1,12 @@
+# Project IDE
+.idea/
+*.iml
+
+# Binary
+flume_exporter
+
+# Test binary, build with `go test -c`
+*.test
+
+*.out
+.build/
