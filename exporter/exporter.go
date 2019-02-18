@@ -14,14 +14,14 @@ import (
 )
 
 type Exporter struct {
-	gaugeVecs   map[string]*prometheus.GaugeVec
-	configFile   string
+	gaugeVecs  map[string]*prometheus.GaugeVec
+	configFile string
 }
 
 func NewExporter(namespace string, configFile string, metric *config.Metrics) *Exporter {
 	gaugeVecs := make(map[string]*prometheus.GaugeVec)
-	for k,v := range metric.Metrics {
-		for _,m := range v {
+	for k, v := range metric.Metrics {
+		for _, m := range v {
 			val := fmt.Sprintf("%s_%s", k, m)
 			gaugeVecs[val] = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 				Namespace: namespace,
@@ -30,8 +30,8 @@ func NewExporter(namespace string, configFile string, metric *config.Metrics) *E
 				[]string{"host", "type", "name"})
 		}
 	}
-	return &Exporter {
-		gaugeVecs:	gaugeVecs,
+	return &Exporter{
+		gaugeVecs:  gaugeVecs,
 		configFile: configFile,
 	}
 }
@@ -106,16 +106,16 @@ func (e *Exporter) collectGaugeVec() error {
 	return nil
 }
 
-func (e *Exporter) processGaugeVecs(title string, host string, flumeType string, data map[string]interface{})  {
+func (e *Exporter) processGaugeVecs(title string, host string, flumeType string, data map[string]interface{}) {
 
-	name := strings.Replace(title, flumeType + ".", "", 1)
+	name := strings.Replace(title, flumeType+".", "", 1)
 	for mName, mValue := range data {
 		val, err := strconv.ParseFloat(mValue.(string), 64)
 		if err != nil {
 			log.Errorf("value = %v", val)
 			val = 0
 		}
-		gv := e.gaugeVecs[flumeType + "_" + mName]
+		gv := e.gaugeVecs[flumeType+"_"+mName]
 		if gv != nil {
 			gv.WithLabelValues(host, flumeType, name).Set(val)
 		} else {

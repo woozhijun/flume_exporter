@@ -12,19 +12,19 @@ import (
 )
 
 const (
-	namespace 	= "FLUME"
-	clientID  	= "flume_exporter"
-	versionID	= "1.0.0"
-	metricFile  = "metrics.yml"
+	namespace  = "FLUME"
+	clientID   = "flume_exporter"
+	versionID  = "1.0.0"
+	metricFile = "metrics.yml"
 )
 
-func main()  {
+func main() {
 
 	var (
-		configFile 			= kingpin.Flag("config-file", "Set config file").Default("config.yml").String()
-		listeningAddress  	= kingpin.Flag("listen.address", "The app listen address.").Default(":9360").String()
-		metricEndpoint		= kingpin.Flag("metric.endpiont", "The app listen endpiont.").Default("/metrics").String()
-		logLevel			= kingpin.Flag("log-level", "Set Logging level").Default("info").String()
+		configFile       = kingpin.Flag("config-file", "Set config file").Default("config.yml").String()
+		listeningAddress = kingpin.Flag("listen.address", "The app listen address.").Default(":9360").String()
+		metricEndpoint   = kingpin.Flag("metric.endpiont", "The app listen endpiont.").Default("/metrics").String()
+		logLevel         = kingpin.Flag("log-level", "Set Logging level").Default("info").String()
 	)
 	//plog.AddFlags(kingpin.CommandLine)
 	kingpin.Version(version.Print(clientID + " " + versionID))
@@ -57,7 +57,7 @@ func main()  {
 }
 
 func setupLogging(logLevel string) {
-	log.SetFormatter(&log.TextFormatter {
+	log.SetFormatter(&log.TextFormatter{
 		FullTimestamp: true,
 	})
 

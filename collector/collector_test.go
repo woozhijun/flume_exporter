@@ -11,10 +11,10 @@ func TestCollector(t *testing.T) {
 	url := "http://localhost:8080/metrics"
 	Convey("metrics collector tests", t, func() {
 
-		flumeMetric, err := GetMetrics(url)
+		flumeMetric := FlumeMetric{}
+		flumeMetric = flumeMetric.GetMetrics(url)
 
 		log.Info(flumeMetric)
-		So(err, ShouldBeNil)
 		So(flumeMetric, ShouldNotBeNil)
 	})
 }

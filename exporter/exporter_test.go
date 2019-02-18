@@ -17,7 +17,7 @@ func TestNewExporter(t *testing.T) {
 		exporter := NewExporter("flume", "config.yml", metrics)
 		fmt.Println(exporter)
 
-		url :=  "http://localhost:53454/metrics"
+		url := "http://localhost:53454/metrics"
 		reg := regexp.MustCompile(`//(.*)/metrics`)
 		fmt.Println(reg.FindStringSubmatch(url)[1])
 	})

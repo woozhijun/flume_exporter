@@ -11,12 +11,12 @@ type Conf struct {
 }
 
 type Agent struct {
-	Name string
+	Name    string
 	Enabled bool
-	Urls []string
+	Urls    []string
 }
 
-func GetConfig(configFile string) *Conf  {
+func GetConfig(configFile string) *Conf {
 	data, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		log.Fatalf("could not read config.yml file; err: <%s>", err)
@@ -32,16 +32,16 @@ func GetConfig(configFile string) *Conf  {
 }
 
 type Metrics struct {
-	Metrics		map[string][]string
+	Metrics map[string][]string
 }
 
 type CollectMetrics struct {
-	Sources  	[]string        `sources`
-	Channels    []string        `channels`
-	Sinks		[]string		`sinks`
+	Sources  []string
+	Channels []string
+	Sinks    []string
 }
 
-func GetCollectMetrics(configFile string) *Metrics  {
+func GetCollectMetrics(configFile string) *Metrics {
 	data, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		log.Fatalf("could not read metrics.yml file; err: <%s>", err)

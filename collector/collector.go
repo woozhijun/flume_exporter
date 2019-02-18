@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-type Job struct {}
+type Job struct{}
 
 type FlumeMetric struct {
 	Metrics map[string]interface{}
@@ -33,7 +33,7 @@ func (f *FlumeMetric) GetMetrics(flumeMetricUrl string) FlumeMetric {
 	return FlumeMetric{flumeMetricMap}
 }
 
-type HttpClient struct {}
+type HttpClient struct{}
 
 func (httpClient *HttpClient) Get(url string) (string, error) {
 	log.Debug(url)

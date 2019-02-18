@@ -63,5 +63,5 @@ Help on flags:
 ### Using Docker
 
 ```
-docker run -d -p 9360:9360   ...
+docker run -d -p 9360:9360 zhijunwoo/flume_exporter:latest
 ```
