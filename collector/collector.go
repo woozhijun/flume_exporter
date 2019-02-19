@@ -11,26 +11,29 @@ import (
 type Job struct{}
 
 type FlumeMetric struct {
-	Metrics map[string]interface{}
+	Metrics map[string]map[string]interface{}
 }
 
 func (f *FlumeMetric) GetMetrics(flumeMetricUrl string) FlumeMetric {
 	httpClient := HttpClient{}
 	json, err := httpClient.Get(flumeMetricUrl)
+	result := make(map[string]map[string]interface{})
 	if err != nil {
-		log.Errorf("HttpClient.Get = %v", err)
-		return FlumeMetric{nil}
+		result[flumeMetricUrl] = nil
+		return FlumeMetric{result}
 	}
 
 	js, err := simpleJson.NewJson([]byte(json))
 	if err != nil {
 		log.Errorf("simpleJson.NewJson = %v", err)
-		return FlumeMetric{nil}
+		result[flumeMetricUrl] = nil
+		return FlumeMetric{result}
 	}
 
 	flumeMetricMap := make(map[string]interface{})
 	flumeMetricMap, _ = js.Map()
-	return FlumeMetric{flumeMetricMap}
+	result[flumeMetricUrl] = flumeMetricMap
+	return FlumeMetric{result}
 }
 
 type HttpClient struct{}
@@ -40,7 +43,7 @@ func (httpClient *HttpClient) Get(url string) (string, error) {
 
 	response, err := http.Get(url)
 	if err != nil {
-		log.Errorf("http.Get = %v", err)
+		log.Errorf("httpClient.Get = %v", err)
 		return "", err
 	}
 	defer response.Body.Close()

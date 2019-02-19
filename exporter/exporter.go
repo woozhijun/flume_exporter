@@ -1,26 +1,31 @@
 package exporter
 
 import (
-	"errors"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/woozhijun/flume_exporter/collector"
 	"github.com/woozhijun/flume_exporter/config"
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/woozhijun/flume_exporter/collector"
+	"sync"
 )
 
 type Exporter struct {
-	gaugeVecs  map[string]*prometheus.GaugeVec
-	configFile string
+	gaugeVecs  			map[string]*prometheus.GaugeVec
+	flumeMetricUrls  	[]string
 }
 
-func NewExporter(namespace string, configFile string, metric *config.Metrics) *Exporter {
+func NewExporter(namespace string, configFile string, metricFile string) *Exporter {
+
+	metrics := config.GetCollectMetrics(metricFile)
+	if metrics == nil {
+		log.Fatal("load metrics.yml failed.")
+		log.Exit(2)
+	}
 	gaugeVecs := make(map[string]*prometheus.GaugeVec)
-	for k, v := range metric.Metrics {
+	for k, v := range metrics.Metrics {
 		for _, m := range v {
 			val := fmt.Sprintf("%s_%s", k, m)
 			gaugeVecs[val] = prometheus.NewGaugeVec(prometheus.GaugeOpts{
@@ -30,9 +35,25 @@ func NewExporter(namespace string, configFile string, metric *config.Metrics) *E
 				[]string{"host", "type", "name"})
 		}
 	}
+
+	var flumeUrls []string
+	conf := config.GetConfig(configFile)
+	if conf == nil {
+		log.Fatal("load flume config.yml failed.")
+		log.Exit(2)
+	}
+	for _, agent := range conf.Agents {
+		if agent.Enabled {
+			for _, url := range agent.Urls {
+				flumeUrls = append(flumeUrls, url)
+			}
+		}
+	}
+	log.Debugf("flumeUrls=%v", flumeUrls)
+
 	return &Exporter{
 		gaugeVecs:  gaugeVecs,
-		configFile: configFile,
+		flumeMetricUrls: flumeUrls,
 	}
 }
 
@@ -52,58 +73,49 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-func (e *Exporter) collectGaugeVec() error {
+func (e *Exporter) collectGaugeVec() bool {
 
+	var wg = sync.WaitGroup{}
 	f := collector.FlumeMetric{}
-	var flumeMetricUrls []string
-
-	conf := config.GetConfig(e.configFile)
-	if conf == nil {
-		return errors.New("load flume config failed")
-	}
-	for _, agent := range conf.Agents {
-		if agent.Enabled {
-			for _, url := range agent.Urls {
-				flumeMetricUrls = append(flumeMetricUrls, url)
-			}
-		}
-	}
-	// flumeMetricUrls := e.flumeMetricUrls
-	log.Debugf("flumeMetricUrls=%v", flumeMetricUrls)
-
 	channel := make(chan collector.FlumeMetric)
-	for _, url := range flumeMetricUrls {
-		go func(url string) {
+	wg.Add(2)
+	go func(metricUrls []string) {
+
+		defer wg.Done()
+		for _, url := range metricUrls {
 			channel <- f.GetMetrics(url)
-		}(url)
-	}
-
-	// receive from all channels
-	for i := 0; i < len(flumeMetricUrls); i++ {
-		m := <-channel
-		url := flumeMetricUrls[i]
-		if m.Metrics == nil {
-			log.Warn(">>>.receive metrics channel is nil, url: " + url)
-			continue
 		}
-		reg := regexp.MustCompile(`//(.*)/metrics`)
-		host := reg.FindStringSubmatch(url)[1]
-		for k, v := range m.Metrics {
-			sMetrics := make(map[string]interface{})
-			sMetrics = v.(map[string]interface{})
-			delete(sMetrics, "Type")
+	}(e.flumeMetricUrls)
 
-			if strings.HasPrefix(k, "SOURCE.") {
-				e.processGaugeVecs(k, host, "SOURCE", sMetrics)
-			} else if strings.HasPrefix(k, "CHANNEL.") {
-				delete(sMetrics, "Open")
-				e.processGaugeVecs(k, host, "CHANNEL", sMetrics)
-			} else if strings.HasPrefix(k, "SINK.") {
-				e.processGaugeVecs(k, host, "SINK", sMetrics)
+	go func() {
+		defer wg.Done()
+		for _, url := range e.flumeMetricUrls {
+
+			m := <-channel
+			fmt.Println(url)
+			if m.Metrics[url] == nil {
+				log.Warn(">>>.receive metrics channel is nil, url: " + url)
+				continue
+			}
+			reg := regexp.MustCompile(`//(.*)/metrics`)
+			host := reg.FindStringSubmatch(url)[1]
+			for k, v := range m.Metrics[url] {
+				sMetrics := make(map[string]interface{})
+				sMetrics = v.(map[string]interface{})
+				delete(sMetrics, "Type")
+
+				if strings.HasPrefix(k, "SOURCE.") {
+					e.processGaugeVecs(k, host, "SOURCE", sMetrics)
+				} else if strings.HasPrefix(k, "CHANNEL.") {
+					delete(sMetrics, "Open")
+					e.processGaugeVecs(k, host, "CHANNEL", sMetrics)
+				} else if strings.HasPrefix(k, "SINK.") {
+					e.processGaugeVecs(k, host, "SINK", sMetrics)
+				}
 			}
 		}
-	}
-	return nil
+	}()
+	return true
 }
 
 func (e *Exporter) processGaugeVecs(title string, host string, flumeType string, data map[string]interface{}) {
@@ -116,11 +128,10 @@ func (e *Exporter) processGaugeVecs(title string, host string, flumeType string,
 			val = 0
 		}
 		gv := e.gaugeVecs[flumeType+"_"+mName]
-		if gv != nil {
-			gv.WithLabelValues(host, flumeType, name).Set(val)
+		if gv == nil {
+			continue
 		} else {
-			fmt.Printf("====> metric: %s, type %s", flumeType, mName)
-			fmt.Println()
+			gv.WithLabelValues(host, flumeType, name).Set(val)
 		}
 	}
 }

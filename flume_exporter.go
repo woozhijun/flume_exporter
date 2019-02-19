@@ -5,7 +5,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
-	"github.com/woozhijun/flume_exporter/config"
 	"github.com/woozhijun/flume_exporter/exporter"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"net/http"
@@ -32,12 +31,7 @@ func main() {
 	kingpin.Parse()
 
 	setupLogging(*logLevel)
-	metrics := config.GetCollectMetrics(*metricFile)
-	if metrics == nil {
-		log.Fatal("load metrics.yml failed.")
-		log.Exit(2)
-	}
-	exporter := exporter.NewExporter(namespace, *configFile, metrics)
+	exporter := exporter.NewExporter(namespace, *configFile, *metricFile)
 	prometheus.MustRegister(exporter)
 
 	http.Handle(*metricEndpoint, promhttp.Handler())
