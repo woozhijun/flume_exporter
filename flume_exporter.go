@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	namespace  = "FLUME"
-	clientID   = "flume_exporter"
-	versionID  = "1.0.0"
+	namespace = "FLUME"
+	clientID  = "flume_exporter"
+	versionID = "1.0.0"
 )
 
 func main() {

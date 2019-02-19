@@ -13,8 +13,8 @@ import (
 )
 
 type Exporter struct {
-	gaugeVecs  			map[string]*prometheus.GaugeVec
-	flumeMetricUrls  	[]string
+	gaugeVecs       map[string]*prometheus.GaugeVec
+	flumeMetricUrls []string
 }
 
 func NewExporter(namespace string, configFile string, metricFile string) *Exporter {
@@ -52,7 +52,7 @@ func NewExporter(namespace string, configFile string, metricFile string) *Export
 	log.Debugf("flumeUrls=%v", flumeUrls)
 
 	return &Exporter{
-		gaugeVecs:  gaugeVecs,
+		gaugeVecs:       gaugeVecs,
 		flumeMetricUrls: flumeUrls,
 	}
 }
