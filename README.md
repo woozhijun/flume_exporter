@@ -26,7 +26,7 @@ agents:
 ### Using Docker
 Default
 ```
-docker run -d -p 9360:9360 zhijunwoo/flume_exporter:latest --config-file=/etc/flume_exporter/config.yml
+docker run -d -p 9360:9360 zhijunwoo/flume_exporter:latest
 ```
 
 Specified configuration
