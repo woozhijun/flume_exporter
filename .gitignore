@@ -9,4 +9,7 @@ flume_exporter
 *.test
 
 *.out
+
+# promu crossbuild tarballs
 .build/
+.tarballs/

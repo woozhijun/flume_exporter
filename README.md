@@ -1,15 +1,41 @@
 # flume_exporter
-Prometheus exporter for flume
+Prometheus exporter for flume.
 
 To run it:
 
 ```bash
+make build
+
 ./flume_exporter [flags]
 ```
 
 Help on flags:
 ```bash
 ./flume_exporter --help
+```
+
+Configuration: config.yml
+```
+agents:
+- name: "flume-agents"
+  enabled: true
+# multiple urls can be separated by ,  
+  urls: ["http://localhost:36001/metrics"]   
+```
+
+### Using Docker
+Default
+```
+docker run -d -p 9360:9360 zhijunwoo/flume_exporter:latest --config-file=/etc/flume_exporter/config.yml
+```
+
+Specified configuration
+```
+docker run -d \
+    -p 9360:9360 \
+    -v `pwd`/config.yml:/etc/flume_exporter/config.yml \
+    -name flume_exporter \
+    zhijunwoo/flume_exporter:latest
 ```
 
 ### monitoring metrics
@@ -59,9 +85,3 @@ Help on flags:
 - EventWriteFail
 - KafkaEventSendTimer
 - RollbackCount
-
-### Using Docker
-
-```
-docker run -d -p 9360:9360 zhijunwoo/flume_exporter:latest
-```

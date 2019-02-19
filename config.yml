@@ -1,4 +1,7 @@
+# Example usage:
+# Flume JSON Reporting metrics
 agents:
-- name: "oper-flume01"
+- name: "flume-agents"
   enabled: true
-  urls: ["http://flume01:34545/metrics"]
+# multiple urls can be separated by ,
+  urls: ["http://localhost:36001/metrics"]

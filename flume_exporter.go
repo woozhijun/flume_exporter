@@ -15,7 +15,6 @@ const (
 	namespace  = "FLUME"
 	clientID   = "flume_exporter"
 	versionID  = "1.0.0"
-	metricFile = "metrics.yml"
 )
 
 func main() {
@@ -25,6 +24,7 @@ func main() {
 		listeningAddress = kingpin.Flag("listen.address", "The app listen address.").Default(":9360").String()
 		metricEndpoint   = kingpin.Flag("metric.endpiont", "The app listen endpiont.").Default("/metrics").String()
 		logLevel         = kingpin.Flag("log-level", "Set Logging level").Default("info").String()
+		metricFile       = kingpin.Flag("metric-file", "Set metrics file").Default("metrics.yml").String()
 	)
 	//plog.AddFlags(kingpin.CommandLine)
 	kingpin.Version(version.Print(clientID + " " + versionID))
@@ -32,7 +32,7 @@ func main() {
 	kingpin.Parse()
 
 	setupLogging(*logLevel)
-	metrics := config.GetCollectMetrics(metricFile)
+	metrics := config.GetCollectMetrics(*metricFile)
 	if metrics == nil {
 		log.Fatal("load metrics.yml failed.")
 		log.Exit(2)

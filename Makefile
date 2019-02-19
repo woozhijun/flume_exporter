@@ -31,13 +31,17 @@ crossbuild: promu
 	@echo ">> crossbuilding binaries"
 	@$(PROMU) crossbuild
 
+tarball: promu
+	@echo ">> building release tarball"
+	@$(PROMU) tarball $(BIN_DIR)
+
 docker:
 	@echo ">> building docker image"
 	@docker build -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
 
 push:
 	@echo ">> pushing docker image, $(DOCKER_USERNAME),$(DOCKER_IMAGE_NAME),$(TAG)"
-	@docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
+#	@docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
 	@docker tag "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" "$(DOCKER_USERNAME)/$(DOCKER_IMAGE_NAME):$(TAG)"
 	@docker push "$(DOCKER_USERNAME)/$(DOCKER_IMAGE_NAME):$(TAG)"
 
@@ -46,5 +50,14 @@ promu:
 		GOARCH=$(subst x86_64,amd64,$(patsubst i%86,386,$(shell uname -m))) \
 		$(GO) get -u github.com/prometheus/promu
 
+release: promu github-release
+	@echo ">> pushing binary to github with ghr"
+	@$(PROMU) crossbuild tarballs
+	@$(PROMU) release .tarballs
+
+github-release:
+	@GOOS=$(shell uname -s | tr A-Z a-z) \
+		GOARCH=$(subst x86_64,amd64,$(patsubst i%86,386,$(shell uname -m))) \
+		$(GO) get -u github.com/aktau/github-release
 
 .PHONY: all vet docker promu
