@@ -72,6 +72,9 @@ docker run -d \
 - RollbackCounter
 - Unhealthy
 
+- RollbackCount
+- ChannelFillPercentage
+
 #### Sinks
 - BatchCompleteCount
 - BatchEmptyCount
