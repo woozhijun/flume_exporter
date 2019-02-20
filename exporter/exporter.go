@@ -92,7 +92,6 @@ func (e *Exporter) collectGaugeVec() bool {
 		for _, url := range e.flumeMetricUrls {
 
 			m := <-channel
-			fmt.Println(url)
 			if m.Metrics[url] == nil {
 				log.Warn(">>>.receive metrics channel is nil, url: " + url)
 				continue
@@ -129,6 +128,7 @@ func (e *Exporter) processGaugeVecs(title string, host string, flumeType string,
 		}
 		gv := e.gaugeVecs[flumeType+"_"+mName]
 		if gv == nil {
+			// filter metrics: StartTime StopTime
 			continue
 		} else {
 			gv.WithLabelValues(host, flumeType, name).Set(val)
