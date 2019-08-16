@@ -88,3 +88,8 @@ docker run -d \
 - EventWriteFail
 - KafkaEventSendTimer
 - RollbackCount
+
+#### Grafana Dashboard
+Grafana Dashboard ID: 10736  
+name: Flume Exporter Metrics Overview For Prometheus
+For details of the dashboard please see [Flume Exporter Metrics](https://grafana.com/grafana/dashboards/10736)
