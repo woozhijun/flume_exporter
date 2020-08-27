@@ -2,8 +2,8 @@ package exporter
 
 import (
 	"fmt"
-	log "github.com/Sirupsen/logrus"
 	"github.com/prometheus/client_golang/prometheus"
+	log "github.com/sirupsen/logrus"
 	"github.com/woozhijun/flume_exporter/collector"
 	"github.com/woozhijun/flume_exporter/config"
 	"regexp"

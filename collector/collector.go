@@ -1,8 +1,8 @@
 package collector
 
 import (
-	log "github.com/Sirupsen/logrus"
 	simpleJson "github.com/bitly/go-simplejson"
+	log "github.com/sirupsen/logrus"
 
 	"io/ioutil"
 	"net/http"
