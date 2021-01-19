@@ -1,13 +1,24 @@
-GO    := GO15VENDOREXPERIMENT=1 go
+unexport GOBIN
+
+GO    ?= go
+GOFMT ?= $(GO) fmt
+GOPATH := $(shell $(GO) env GOPATH)
+GOOPTS       ?=
+GOHOSTOS     ?= $(shell $(GO) env GOHOSTOS)
+GOHOSTARCH   ?= $(shell $(GO) env GOHOSTARCH)
+GO_VERSION   ?= $(shell $(GO) version)
+
 PROMU := $(GOPATH)/bin/promu
 pkgs   = $(shell $(GO) list ./... | grep -v /vendor/)
 
-GO_VERSION              ?= $(shell $(GO) version)
 PREFIX                  ?= $(shell pwd)
 BIN_DIR                 ?= $(shell pwd)
 DOCKER_IMAGE_NAME       ?= flume_exporter
 DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
 TAG 					:= $(shell echo `if [ "$(TRAVIS_BRANCH)" = "master" ] || [ "$(TRAVIS_BRANCH)" = "" ] ; then echo "latest"; else echo $(TRAVIS_BRANCH) ; fi`)
+
+export GO111MODULE=on
+export GOPROXY=https://goproxy.io
 
 all: format test build
 
