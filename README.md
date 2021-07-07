@@ -93,3 +93,8 @@ docker run -d \
 Grafana Dashboard ID: 10736  
 name: Flume Exporter Metrics Overview For Prometheus
 For details of the dashboard please see [Flume Exporter Metrics](https://grafana.com/grafana/dashboards/10736)
+
+### 新分支说明
+- feature/read-flume-process
+    主要作用：通过在Linux主机上执行`ps -ef | grep Dflume.monitoring.port`命令获取当前正在运行的有监控的flume进程，
+    然后自动把他们监控起来，不需要每次启停一些程序后还要修改配置文件
