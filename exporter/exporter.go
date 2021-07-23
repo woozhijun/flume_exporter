@@ -52,14 +52,12 @@ func NewExporter(namespace string, configFile string, metricFile string) *Export
 	agents,err := watch.CheckFlume()
 	if err != nil {
 		log.Errorf("无法使用进程搜索得到的数据,%s",err)
-		agents = conf.Agents // 优先使用查询出来的，如果查找进程失败则使用配置文件里的
-	}else{
-		log.Info("使用进程搜索得来的数据")
+		agents = conf.Agents // 优先使用查询出来的，如果查找进程失败则会panic
 	}
 	for _, agent := range agents {
 		if agent.Enabled {
 			for _, url := range agent.Urls {
-				//flumeUrls = append(flumeUrls, url)
+				log.Info(fmt.Sprintf("Agent: %s, Url: %s",agent.Name, url))
 				flumeUrls = append(flumeUrls, FLV2{
 					Url:  url,
 					Agent: agent.Name,
